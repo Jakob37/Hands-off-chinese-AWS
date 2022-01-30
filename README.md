@@ -2,5 +2,12 @@
 
 ## Next
 
-* Look over setting up the CDK credentials: https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html
-* Try again with setting up the Hello World app: https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html
+* CDK workshop: https://cdkworkshop.com/
+
+## Useful commands
+
+* `cdk bootstrap` Generate S3 resource to carry the project
+* `cdk destroy` Cleanup
+* `cdk synth` Synthesize the cloud formation template
+* `cdk diff` Compare the to-be-generated template with the current
+* `cdk deploy`
