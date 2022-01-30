@@ -3,13 +3,9 @@
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 import * as cdk from "aws-cdk-lib";
-import { aws_s3 as s3 } from "aws-cdk-lib";
-
-import * as sns from "aws-cdk-lib/aws-sns";
-import * as subs from "aws-cdk-lib/aws-sns-subscriptions";
-import * as sqs from "aws-cdk-lib/aws-sqs";
 
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as apigw from "aws-cdk-lib/aws-apigateway";
 
 // export class HandsOffChineseAwsStack extends cdk.Stack {
 //   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -23,6 +19,8 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 //   }
 // }
 
+import { HitCounter } from './hitcounter';
+
 export class HandsOffChineseAwsStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -31,6 +29,15 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset("lambda"),
       handler: "hello.handler",
+    });
+
+    const helloWithCounter = new HitCounter(this, 'HelloHitCounter', {
+      downstream: hello
+    })
+
+    // REST API for the hello function
+    new apigw.LambdaRestApi(this, "Endpoint", {
+      handler: helloWithCounter.handler,
     });
   }
 }

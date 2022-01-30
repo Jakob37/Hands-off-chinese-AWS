@@ -3,7 +3,7 @@
 ## Next
 
 * CDK workshop: https://cdkworkshop.com/
-    * Current step: https://cdkworkshop.com/20-typescript/30-hello-cdk/300-cdk-watch.html
+    * Current step: https://cdkworkshop.com/20-typescript/40-hit-counter/600-permissions.html
 * Outline the needed resources
     * Lambda
     * S3
