@@ -11,7 +11,7 @@ exports.handler = async function (event) {
     await dynamo
         .updateItem({
             TableName: process.env.HITS_TABLE_NAME,
-            Key: { path: { S: eventpath } },
+            Key: { path: { S: event.path } },
             UpdateExpression: "ADD hits :incr",
             ExpressionAttributeValues: { ":incr": { N: "1" } },
         })

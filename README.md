@@ -19,4 +19,5 @@
 * `cdk destroy` Cleanup
 * `cdk synth` Synthesize the cloud formation template
 * `cdk diff` Compare the to-be-generated template with the current
-* `cdk deploy`
+* `cdk deploy` / `cdk deploy --hotswap`
+* `cdk watch`
