@@ -7,6 +7,14 @@ export interface HitCounterProps {
     downstream: lambda.IFunction;
 }
 
+// (Current) dynamo entries
+// status: string
+// category: string
+// text: string
+// creationdate: number
+// id: string
+// language: string
+
 export class HitCounter extends Construct {
     public readonly handler: lambda.Function;
 
@@ -16,7 +24,7 @@ export class HitCounter extends Construct {
         super(scope, id);
 
         const table = new dynamodb.Table(this, "Hits", {
-            partitionKey: { name: "path", type: dynamodb.AttributeType.STRING },
+            partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
         });
         this.table = table;
 
