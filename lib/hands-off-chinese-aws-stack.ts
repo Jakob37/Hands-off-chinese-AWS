@@ -11,21 +11,30 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         const metaDynamo = new dynamodb.Table(this, "Meta", {
             partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
         });
+        const writeDynamoLambda = new lambda.Function(this, "WriteDynamo", {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: "writetodynamo.handler",
+            code: lambda.Code.fromAsset("lambda"),
+            environment: {
+                TABLE_NAME: metaDynamo.tableName,
+            },
+        });
+        metaDynamo.grantReadWriteData(writeDynamoLambda);
+        new apigw.LambdaRestApi(this, "MetaRest", {
+            handler: writeDynamoLambda,
+        });
 
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
-
         const lambdaTest = new lambda.Function(this, "LambdaTest", {
             runtime: lambda.Runtime.NODEJS_14_X,
-            handler: "dummy.handler",
+            handler: "writetos3.handler",
             code: lambda.Code.fromAsset("lambda"),
             environment: {
                 BUCKET_NAME: pollyS3.bucketName,
             },
         });
-
         pollyS3.grantReadWrite(lambdaTest);
-
-        new apigw.LambdaRestApi(this, "DummyPoint", {
+        new apigw.LambdaRestApi(this, "PollyREST", {
             handler: lambdaTest,
         });
 
