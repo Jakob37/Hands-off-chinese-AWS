@@ -19,9 +19,11 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             handler: "dummy.handler",
             code: lambda.Code.fromAsset("lambda"),
             environment: {
-                TEST: "Testing out the environment",
+                BUCKET_NAME: pollyS3.bucketName,
             },
         });
+
+        pollyS3.grantReadWrite(lambdaTest);
 
         new apigw.LambdaRestApi(this, "DummyPoint", {
             handler: lambdaTest,
