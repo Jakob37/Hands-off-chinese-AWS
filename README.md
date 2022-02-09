@@ -24,3 +24,9 @@ Investigate: Any risks of having this public
 * `cdk diff` Compare the to-be-generated template with the current
 * `cdk deploy` / `cdk deploy --hotswap`
 * `cdk watch`
+* `cdk deploy --outputs-file ./[path].json`
+
+## Useful materials
+
+* CDK Cognito setup https://bobbyhadz.com/blog/aws-cdk-cognito-user-pool-example
+* Amplify login (without Amplify) https://medium.com/alturasoluciones/react-native-signin-and-signup-with-aws-cognito-2a285599b7c4
