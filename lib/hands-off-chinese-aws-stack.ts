@@ -61,7 +61,7 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         // });
 
         const userPool = new cognito.UserPool(this, "userpool", {
-            userPoolName: "my-user-pool",
+            userPoolName: "my-user-pool-2",
             selfSignUpEnabled: true,
             signInAliases: {
                 email: true,
@@ -69,25 +69,25 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             autoVerify: {
                 email: true,
             },
-            standardAttributes: {
-                givenName: {
-                    required: true,
-                    mutable: true,
-                },
-                familyName: {
-                    required: false,
-                    mutable: true,
-                },
-            },
-            customAttributes: {
-                country: new cognito.StringAttribute({ mutable: true }),
-                city: new cognito.StringAttribute({ mutable: true }),
-                isAdmin: new cognito.StringAttribute({ mutable: true }),
-            },
+            // standardAttributes: {
+            //     givenName: {
+            //         required: true,
+            //         mutable: true,
+            //     },
+            //     familyName: {
+            //         required: false,
+            //         mutable: true,
+            //     },
+            // },
+            // customAttributes: {
+            //     country: new cognito.StringAttribute({ mutable: true }),
+            //     city: new cognito.StringAttribute({ mutable: true }),
+            //     isAdmin: new cognito.StringAttribute({ mutable: true }),
+            // },
             passwordPolicy: {
                 minLength: 6,
-                requireLowercase: true,
-                requireDigits: true,
+                requireLowercase: false,
+                requireDigits: false,
                 requireUppercase: false,
                 requireSymbols: false,
             },
@@ -119,7 +119,6 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
 
         const clientReadAttributes = new cognito.ClientAttributes()
             .withStandardAttributes(standardCognitoAttributes)
-            .withCustomAttributes(...["country", "city", "isAdmin"]);
 
         const clientWriteAttributes = new cognito.ClientAttributes()
             .withStandardAttributes({
@@ -127,7 +126,6 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
                 emailVerified: false,
                 phoneNumberVerified: false,
             })
-            .withCustomAttributes(...["country", "city"]);
 
         const userPoolClient = new cognito.UserPoolClient(
             this,
