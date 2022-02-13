@@ -30,3 +30,5 @@ Investigate: Any risks of having this public
 
 * CDK Cognito setup https://bobbyhadz.com/blog/aws-cdk-cognito-user-pool-example
 * Amplify login (without Amplify) https://medium.com/alturasoluciones/react-native-signin-and-signup-with-aws-cognito-2a285599b7c4
+* Cognito with assigned permissions (https://github.com/talkncloud/aws/tree/main/cognito-federation)
+    * https://medium.com/hackernoon/how-to-add-new-cognito-users-to-dynamodb-using-lambda-e3f55541297c

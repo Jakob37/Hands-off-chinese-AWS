@@ -39,27 +39,6 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             handler: lambdaTest,
         });
 
-        // const hello = new lambda.Function(this, "HelloHandler", {
-        //     runtime: lambda.Runtime.NODEJS_14_X,
-        //     code: lambda.Code.fromAsset("lambda"),
-        //     handler: "hello.handler",
-        // });
-
-        // const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
-        //     downstream: hello,
-        // });
-
-        // // REST API for the hello function
-        // new apigw.LambdaRestApi(this, "Endpoint", {
-        //     handler: helloWithCounter.handler,
-        // });
-
-        // new TableViewer(this, "ViewHitCounter", {
-        //     title: "Hello Hits",
-        //     table: helloWithCounter.table,
-        //     sortBy: "-hits",
-        // });
-
         const userPool = new cognito.UserPool(this, "userpool", {
             userPoolName: "my-user-pool-2",
             selfSignUpEnabled: true,
@@ -69,21 +48,7 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             autoVerify: {
                 email: true,
             },
-            // standardAttributes: {
-            //     givenName: {
-            //         required: true,
-            //         mutable: true,
-            //     },
-            //     familyName: {
-            //         required: false,
-            //         mutable: true,
-            //     },
-            // },
-            // customAttributes: {
-            //     country: new cognito.StringAttribute({ mutable: true }),
-            //     city: new cognito.StringAttribute({ mutable: true }),
-            //     isAdmin: new cognito.StringAttribute({ mutable: true }),
-            // },
+
             passwordPolicy: {
                 minLength: 6,
                 requireLowercase: false,
@@ -117,15 +82,17 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             website: true,
         };
 
-        const clientReadAttributes = new cognito.ClientAttributes()
-            .withStandardAttributes(standardCognitoAttributes)
+        const clientReadAttributes =
+            new cognito.ClientAttributes().withStandardAttributes(
+                standardCognitoAttributes
+            );
 
-        const clientWriteAttributes = new cognito.ClientAttributes()
-            .withStandardAttributes({
+        const clientWriteAttributes =
+            new cognito.ClientAttributes().withStandardAttributes({
                 ...standardCognitoAttributes,
                 emailVerified: false,
                 phoneNumberVerified: false,
-            })
+            });
 
         const userPoolClient = new cognito.UserPoolClient(
             this,
@@ -154,3 +121,40 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         });
     }
 }
+
+// standardAttributes: {
+//     givenName: {
+//         required: true,
+//         mutable: true,
+//     },
+//     familyName: {
+//         required: false,
+//         mutable: true,
+//     },
+// },
+// customAttributes: {
+//     country: new cognito.StringAttribute({ mutable: true }),
+//     city: new cognito.StringAttribute({ mutable: true }),
+//     isAdmin: new cognito.StringAttribute({ mutable: true }),
+// },
+
+// const hello = new lambda.Function(this, "HelloHandler", {
+//     runtime: lambda.Runtime.NODEJS_14_X,
+//     code: lambda.Code.fromAsset("lambda"),
+//     handler: "hello.handler",
+// });
+
+// const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
+//     downstream: hello,
+// });
+
+// // REST API for the hello function
+// new apigw.LambdaRestApi(this, "Endpoint", {
+//     handler: helloWithCounter.handler,
+// });
+
+// new TableViewer(this, "ViewHitCounter", {
+//     title: "Hello Hits",
+//     table: helloWithCounter.table,
+//     sortBy: "-hits",
+// });

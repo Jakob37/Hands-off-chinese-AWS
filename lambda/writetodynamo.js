@@ -26,8 +26,8 @@ exports.handler = async function (event) {
     return {
         statusCode: 200,
         headers: { "Content-Type": "text/plain" },
-        body: `Successfully put event: ${JSON.stringify(
-            event,
+        body: `Successfully put event with body: ${JSON.stringify(
+            event.body,
             null,
             2
         )}`,
