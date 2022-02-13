@@ -11,7 +11,10 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
 
         const metaDynamo = new dynamodb.Table(this, "Meta", {
             partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+            sortKey: { name: "user", type: dynamodb.AttributeType.STRING },
         });
+
+        // Write to Dynamo
         const writeDynamoLambda = new lambda.Function(this, "WriteDynamo", {
             runtime: lambda.Runtime.NODEJS_14_X,
             handler: "writetodynamo.handler",
@@ -25,6 +28,21 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             handler: writeDynamoLambda,
         });
 
+        // Scan meta data for all entries in Dynamo
+        const scanMetaLambda = new lambda.Function(this, "ScanDynamo", {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: "scanmeta.handler",
+            code: lambda.Code.fromAsset("lambda"),
+            environment: {
+                TABLE_NAME: metaDynamo.tableName,
+            },
+        });
+        metaDynamo.grantReadData(scanMetaLambda);
+        new apigw.LambdaRestApi(this, "ScanDynamoRest", {
+            handler: scanMetaLambda,
+        });
+
+        // Mp3 storage S3 bucket
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
         const lambdaTest = new lambda.Function(this, "LambdaTest", {
             runtime: lambda.Runtime.NODEJS_14_X,
@@ -39,6 +57,7 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             handler: lambdaTest,
         });
 
+        // Setup the user pool
         const userPool = new cognito.UserPool(this, "userpool", {
             userPoolName: "my-user-pool-2",
             selfSignUpEnabled: true,

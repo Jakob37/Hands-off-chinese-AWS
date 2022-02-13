@@ -9,6 +9,7 @@ const parser = new argparse.ArgumentParser({
 
 parser.add_argument("--endpoint", { help: "", required: true });
 parser.add_argument("--id", { help: "If no ID is provided, one will be generated", default: null });
+parser.add_argument("--user", { help: "If no user is provided, 'default'", default: 'default' });
 parser.add_argument("--chinese", { help: "Chinese string", default: "中文的句子" });
 parser.add_argument("--english", { help: "English string", default: "English sentence" });
 parser.add_argument("--category", {

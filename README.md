@@ -32,3 +32,5 @@ Investigate: Any risks of having this public
 * Amplify login (without Amplify) https://medium.com/alturasoluciones/react-native-signin-and-signup-with-aws-cognito-2a285599b7c4
 * Cognito with assigned permissions (https://github.com/talkncloud/aws/tree/main/cognito-federation)
     * https://medium.com/hackernoon/how-to-add-new-cognito-users-to-dynamodb-using-lambda-e3f55541297c
+* Merge gateways into one entry point:https://docs.aws.amazon.com/cdk/api/v1/docs/aws-apigateway-readme.html
+* Pre-signed URLs for React https://bobbyhadz.com/blog/aws-s3-presigned-url-react
