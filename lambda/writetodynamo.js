@@ -11,6 +11,7 @@ exports.handler = async function (event) {
             TableName: process.env.TABLE_NAME,
             Item: {
                 id: { S: body.id },
+                user: { S: body.user },
                 chinese: { S: body.chinese },
                 english: { S: body.english },
                 filenamechinese: { S: body.filenamechinese },

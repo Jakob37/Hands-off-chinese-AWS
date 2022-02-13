@@ -34,6 +34,7 @@ const hashedId = `${args.chinese}${args.english}`.hashCode().toString(16)
 
 const params = {
     id: hashedId,
+    user: args.user,
     english: args.english,
     chinese: args.chinese,
     filenameenglish: `${args.english}.mp3`,
