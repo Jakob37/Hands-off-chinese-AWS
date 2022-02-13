@@ -52,7 +52,8 @@ axios
     .post(apiUrl, params)
     .then(function (response) {
         console.log("Response");
-        console.log(response);
+        console.log(response.data);
+        console.log(Object.keys(response));
     })
     .catch(function (error) {
         console.log("error");
