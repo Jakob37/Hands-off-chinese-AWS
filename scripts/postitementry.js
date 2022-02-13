@@ -1,47 +1,45 @@
 #!/usr/bin/env node
 
-// import { ArgumentParser } from "argparse";
 const argparse = require("argparse");
 const axios = require("axios").default;
-
-// import pkg from "axios";
-// const { axios } = pkg;
-
-// const { ArgumentParser } = require("argparse");
-// const { ArgumentParser } = require("argparse");
 
 const parser = new argparse.ArgumentParser({
     description: "Argparse example",
 });
 
 parser.add_argument("--endpoint", { help: "", required: true });
-parser.add_argument("--id", { help: "adsd", default: "adsd" });
-parser.add_argument("--text", { help: "file1", default: "file1" });
-parser.add_argument("--filename", { help: "file1", default: "file1" });
-parser.add_argument("--creationdate", { help: "1111", default: "1111" });
+parser.add_argument("--id", { help: "If no ID is provided, one will be generated", default: null });
+parser.add_argument("--chinese", { help: "Chinese string", default: "中文的句子" });
+parser.add_argument("--english", { help: "English string", default: "English sentence" });
 parser.add_argument("--category", {
     help: "Category A",
     default: "Category A",
 });
-parser.add_argument("--language", {
-    help: "'chinese' or 'english'",
-    default: "Chinese",
-});
-parser.add_argument("--action", { help: "add", default: "add" });
 
+// https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
+String.prototype.hashCode = function() {
+    var hash = 0;
+    for (var i = 0; i < this.length; i++) {
+        var char = this.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+const creation_time = String(Date.now());
 const args = parser.parse_args();
+const hashedId = `${args.chinese}${args.english}`.hashCode().toString(16)
 
 const params = {
-    id: args.id,
-    text: args.text,
-    // filename: args.filename,
-    // creationdate: args.creationdate,
-    // category: args.category,
-    // language: args.language,
-    // action: args.action,
+    id: hashedId,
+    english: args.english,
+    chinese: args.chinese,
+    filenameenglish: `${args.english}.mp3`,
+    filenamechinese: `${args.chinese}.mp3`,
+    creationdate: creation_time,
+    category: args.category,
 };
-
-// console.dir(parser.parse_args());
 
 const apiUrl = args.endpoint;
 
@@ -59,18 +57,7 @@ axios
         console.log("error");
         if (error.response) {
             console.log(error.response.data);
+        } else {
+            console.log('Unknown error type encountered')
         }
-        // console.log(error);
     });
-
-// const apiTestXhr = new XMLHttpRequest();
-// const isAsync = true;
-// apiTestXhr.open("PUT", apiUrl, isAsync);
-// apiTestXhr.setRequestHeader("Content-type", "application/json");
-// apiTestXhr.onreadystatechange = (e) => {
-//     // @ts-ignore
-//     // console.log("response", e.target.response)
-// };
-// const result = await apiTestXhr.send(params);
-// return result;
-// console.log(result);
