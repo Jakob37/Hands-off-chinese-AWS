@@ -24,9 +24,9 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         metaDynamo.grantReadWriteData(writeDynamoLambda);
-        new apigw.LambdaRestApi(this, "MetaRest", {
-            handler: writeDynamoLambda,
-        });
+        // new apigw.LambdaRestApi(this, "MetaRest", {
+        //     handler: writeDynamoLambda,
+        // });
 
         // Scan meta data for all entries in Dynamo
         const scanMetaLambda = new lambda.Function(this, "ScanDynamo", {
@@ -38,9 +38,9 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         metaDynamo.grantReadData(scanMetaLambda);
-        new apigw.LambdaRestApi(this, "ScanDynamoRest", {
-            handler: scanMetaLambda,
-        });
+        // new apigw.LambdaRestApi(this, "ScanDynamoRest", {
+        //     handler: scanMetaLambda,
+        // });
 
         // Mp3 storage S3 bucket
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
@@ -53,9 +53,20 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         pollyS3.grantReadWrite(lambdaTest);
-        new apigw.LambdaRestApi(this, "PollyREST", {
-            handler: lambdaTest,
-        });
+        // new apigw.LambdaRestApi(this, "PollyREST", {
+        //     handler: lambdaTest,
+        // });
+
+        // Setup REST API
+        const api = new apigw.RestApi(this, 'hands-off-chinese-api');
+        api.root.addMethod('ANY');
+
+        const entriesApi = api.root.addResource('entries');
+        // entriesApi.addMethod('GET');
+        entriesApi.addMethod('POST', new apigw.LambdaIntegration(writeDynamoLambda));
+
+        const allEntriesApi = api.root.addResource('allentries');
+        allEntriesApi.addMethod('GET', new apigw.LambdaIntegration(scanMetaLambda));
 
         // Setup the user pool
         const userPool = new cognito.UserPool(this, "userpool", {
