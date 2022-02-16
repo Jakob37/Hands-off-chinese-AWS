@@ -14,7 +14,7 @@ exports.handler = (event, context, callback) => {
         .on("success", function (response) {
             const data = response.data;
             const audioStream = data.AudioStream;
-            const s3BucketName = "[BUCKETNAME]";
+            const s3BucketName = process.env.BUCKET_NAME;
             const key = `public/${event.prefix}_${event.text}`;
 
             const params = {

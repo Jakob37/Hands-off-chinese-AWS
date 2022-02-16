@@ -44,7 +44,7 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
 
         // Mp3 storage S3 bucket
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
-        const lambdaTest = new lambda.Function(this, "LambdaTest", {
+        const pollyLambda = new lambda.Function(this, "LambdaTest", {
             runtime: lambda.Runtime.NODEJS_14_X,
             handler: "writetos3.handler",
             code: lambda.Code.fromAsset("lambda"),
@@ -52,21 +52,30 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
                 BUCKET_NAME: pollyS3.bucketName,
             },
         });
-        pollyS3.grantReadWrite(lambdaTest);
+        pollyS3.grantReadWrite(pollyLambda);
         // new apigw.LambdaRestApi(this, "PollyREST", {
         //     handler: lambdaTest,
         // });
 
         // Setup REST API
-        const api = new apigw.RestApi(this, 'hands-off-chinese-api');
-        api.root.addMethod('ANY');
+        const api = new apigw.RestApi(this, "hands-off-chinese-api");
+        api.root.addMethod("ANY");
 
-        const entriesApi = api.root.addResource('entries');
+        const entriesApi = api.root.addResource("entries");
         // entriesApi.addMethod('GET');
-        entriesApi.addMethod('POST', new apigw.LambdaIntegration(writeDynamoLambda));
+        entriesApi.addMethod(
+            "POST",
+            new apigw.LambdaIntegration(writeDynamoLambda)
+        );
 
-        const allEntriesApi = api.root.addResource('allentries');
-        allEntriesApi.addMethod('GET', new apigw.LambdaIntegration(scanMetaLambda));
+        const allEntriesApi = api.root.addResource("allentries");
+        allEntriesApi.addMethod(
+            "GET",
+            new apigw.LambdaIntegration(scanMetaLambda)
+        );
+
+        const pollyApi = api.root.addResource("polly");
+        pollyApi.addMethod("POST", new apigw.LambdaIntegration(pollyLambda));
 
         // Setup the user pool
         const userPool = new cognito.UserPool(this, "userpool", {
