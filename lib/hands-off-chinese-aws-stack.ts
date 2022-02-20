@@ -44,7 +44,7 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
 
         // Mp3 storage S3 bucket
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
-        const pollyLambda = new lambda.Function(this, "LambdaTest", {
+        const pollyLambda = new lambda.Function(this, "Polly", {
             runtime: lambda.Runtime.NODEJS_14_X,
             handler: "writetos3.handler",
             code: lambda.Code.fromAsset("lambda"),

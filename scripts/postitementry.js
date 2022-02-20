@@ -46,7 +46,9 @@ String.prototype.hashCode = function () {
 
 const creation_time = String(Date.now());
 const args = parser.parse_args();
-const hashedId = `${args.chinese}${args.english}`.hashCode().toString(16);
+const hashedId = Math.abs(`${args.chinese}${args.english}`.hashCode()).toString(
+    16
+);
 
 const params = {
     id: hashedId,
@@ -77,23 +79,31 @@ axios
             console.log(error.response.data);
         } else {
             console.log("Unknown error type encountered");
+            console.log(error);
         }
     });
 
 if (args.make_polly) {
     console.log("To create Polly entry here...");
 
-    /**
- * @param {string} apiUrl
- * @param {string} text
- * @param {string} voice
- * @param {string} prefix
- * @param {() => void} onReadyCall
- * @returns {string}
- */
-const generateAudio = (apiUrl, text, voice, prefix, onReadyCall = null) => {
-    const params = `{"text": "${text}", "voice": "${voice}", "prefix": "${prefix}"}`
+    const params = `{"text": "${text}", "voice": "${voice}", "prefix": "${prefix}"}`;
 
+    axios
+        .post(apiUrl, params)
+        .then(function (response) {
+            console.log("Polly response");
+            console.log(response.data);
+            console.log(Object.keys(response));
+        })
+        .catch(function (error) {
+            console.log("Polly error");
+            if (error.response) {
+                console.log(error.response.data);
+            } else {
+                console.log("Unknown error encountered while processing Polly");
+            }
+        });
+}
 //     const pollyXhr = new XMLHttpRequest()
 //     const isAsync = true
 //     pollyXhr.open('POST', apiUrl, isAsync)
@@ -109,4 +119,3 @@ const generateAudio = (apiUrl, text, voice, prefix, onReadyCall = null) => {
 
 //     return `${prefix}_${text}`
 // }
-}
