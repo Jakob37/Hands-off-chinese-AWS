@@ -63,11 +63,14 @@ const params = {
 
 const apiUrl = args.endpoint;
 
+const entriesUrl = `${apiUrl}/entries`;
+const pollyUrl = `${apiUrl}/polly`;
+
 console.log("URL", apiUrl);
 console.log(params);
 
 axios
-    .post(apiUrl, params)
+    .post(entriesUrl, params)
     .then(function (response) {
         console.log("Response");
         console.log(response.data);
@@ -86,10 +89,11 @@ axios
 if (args.make_polly) {
     console.log("To create Polly entry here...");
 
-    const params = `{"text": "${text}", "voice": "${voice}", "prefix": "${prefix}"}`;
+    const params = `{"text": "text", "voice": "voice", "prefix": "prefix"}`;
+    // const params = `{"text": "${text}", "voice": "${voice}", "prefix": "${prefix}"}`;
 
     axios
-        .post(apiUrl, params)
+        .post(pollyUrl, params)
         .then(function (response) {
             console.log("Polly response");
             console.log(response.data);
