@@ -4,6 +4,7 @@ import * as apigw from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as S3 from "aws-cdk-lib/aws-s3";
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export class HandsOffChineseAwsStack extends cdk.Stack {
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -53,6 +54,20 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         pollyS3.grantReadWrite(pollyLambda);
+        // FIXME: Can this be used for Polly?
+
+        const s3ListBucketsPolicy = new iam.PolicyStatement({
+            actions: ['s3:ListAllMyBuckets'],
+            resources: ['arn:aws:s3:::*'],
+          });
+
+        pollyLambda.role?.attachInlinePolicy(
+            new iam.Policy(this, 'list-buckets-policy', {
+              statements: [s3ListBucketsPolicy],
+            }),
+          );
+
+
         // new apigw.LambdaRestApi(this, "PollyREST", {
         //     handler: lambdaTest,
         // });
