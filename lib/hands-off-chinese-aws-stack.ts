@@ -39,38 +39,11 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         metaDynamo.grantReadData(scanMetaLambda);
-        // new apigw.LambdaRestApi(this, "ScanDynamoRest", {
-        //     handler: scanMetaLambda,
-        // });
 
-        // const pollyGroup = new iam.Group(this, "PollyGroup", {
-        //     managedPolicies: [
-        //         // iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //         //     "AmazonPollyFullAccess"
-        //         // ),
-        //         // iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //         //     "AmazonS3FullAccess"
-        //         // ),
-        //     ],
-        // });
-        const pollyGroup = new iam.Group(this, "PollyGroup");
-
-        const pollyUser = new iam.User(this, "PollyUser", {
-            userName: "polly-user",
-            groups: [pollyGroup],
-        });
-
-        const pollyRole = new iam.Role(this, "PollyRole", {
-            assumedBy: pollyUser,
-            description: "Polly role for Hands-off Chinese",
-            managedPolicies: [
-                iam.ManagedPolicy.fromAwsManagedPolicyName(
-                    "AmazonPollyFullAccess"
-                ),
-                iam.ManagedPolicy.fromAwsManagedPolicyName(
-                    "AmazonS3FullAccess"
-                ),
-            ],
+        const pollyStatement = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: ["*"],
+            actions: ["polly:SynthesizeSpeech", "s3:PutObject"],
         });
 
         // Mp3 storage S3 bucket
@@ -82,35 +55,10 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             environment: {
                 BUCKET_NAME: pollyS3.bucketName,
             },
-            role: pollyRole,
+            // role: pollyRole,
         });
+        pollyLambda.addToRolePolicy(pollyStatement);
         pollyS3.grantReadWrite(pollyLambda);
-        // FIXME: Can this be used for Polly?
-
-        // TO READ
-        // Aha, I am trying to attach permissions directly to the lambda resource
-        // Instead, I should perhaps attach to the user
-        // https://docs.aws.amazon.com/polly/latest/dg/security_iam_id-based-policy-examples.html
-        // https://docs.aws.amazon.com/polly/latest/dg/security-iam.html
-        // https://docs.aws.amazon.com/polly/latest/dg/api-permissions-reference.html
-
-        // pollyLambda.role?.assumeRoleAction()
-
-        // const s3ListBucketsPolicy = new iam.PolicyStatement({
-        //     // actions: ['s3:ListAllMyBuckets'],
-        //     actions: ["*"],
-        //     resources: ["arn:aws:s3:::*", "arn:aws:polly:::*"],
-        // });
-
-        // pollyLambda.role?.attachInlinePolicy(
-        //     new iam.Policy(this, "list-buckets-policy", {
-        //         statements: [s3ListBucketsPolicy],
-        //     })
-        // );
-
-        // new apigw.LambdaRestApi(this, "PollyREST", {
-        //     handler: lambdaTest,
-        // });
 
         // Setup REST API
         const api = new apigw.RestApi(this, "hands-off-chinese-api");
