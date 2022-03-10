@@ -25,9 +25,6 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         metaDynamo.grantReadWriteData(writeDynamoLambda);
-        // new apigw.LambdaRestApi(this, "MetaRest", {
-        //     handler: writeDynamoLambda,
-        // });
 
         // Scan meta data for all entries in Dynamo
         const scanMetaLambda = new lambda.Function(this, "ScanDynamo", {
@@ -40,13 +37,12 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         });
         metaDynamo.grantReadData(scanMetaLambda);
 
+        // Polly
         const pollyStatement = new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
             resources: ["*"],
             actions: ["polly:SynthesizeSpeech", "s3:PutObject"],
         });
-
-        // Mp3 storage S3 bucket
         const pollyS3 = new S3.Bucket(this, "PollyBucket");
         const pollyLambda = new lambda.Function(this, "Polly", {
             runtime: lambda.Runtime.NODEJS_14_X,
@@ -55,10 +51,20 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             environment: {
                 BUCKET_NAME: pollyS3.bucketName,
             },
-            // role: pollyRole,
         });
         pollyLambda.addToRolePolicy(pollyStatement);
         pollyS3.grantReadWrite(pollyLambda);
+
+        // Get signed URL
+        const signedUrlLambda = new lambda.Function(this, "SignedUrl", {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: "getsignedurl.handler",
+            code: lambda.Code.fromAsset("lambda"),
+            environment: {
+                BUCKET_NAME: pollyS3.bucketName,
+            },
+        });
+        pollyS3.grantReadWrite(signedUrlLambda);
 
         // Setup REST API
         const api = new apigw.RestApi(this, "hands-off-chinese-api");
@@ -79,6 +85,12 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
 
         const pollyApi = api.root.addResource("polly");
         pollyApi.addMethod("POST", new apigw.LambdaIntegration(pollyLambda));
+
+        const signedUrlApi = api.root.addResource("signedurl");
+        signedUrlApi.addMethod(
+            "POST",
+            new apigw.LambdaIntegration(signedUrlLambda)
+        );
 
         // Setup the user pool
         const userPool = new cognito.UserPool(this, "userpool", {
@@ -163,40 +175,3 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         });
     }
 }
-
-// standardAttributes: {
-//     givenName: {
-//         required: true,
-//         mutable: true,
-//     },
-//     familyName: {
-//         required: false,
-//         mutable: true,
-//     },
-// },
-// customAttributes: {
-//     country: new cognito.StringAttribute({ mutable: true }),
-//     city: new cognito.StringAttribute({ mutable: true }),
-//     isAdmin: new cognito.StringAttribute({ mutable: true }),
-// },
-
-// const hello = new lambda.Function(this, "HelloHandler", {
-//     runtime: lambda.Runtime.NODEJS_14_X,
-//     code: lambda.Code.fromAsset("lambda"),
-//     handler: "hello.handler",
-// });
-
-// const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
-//     downstream: hello,
-// });
-
-// // REST API for the hello function
-// new apigw.LambdaRestApi(this, "Endpoint", {
-//     handler: helloWithCounter.handler,
-// });
-
-// new TableViewer(this, "ViewHitCounter", {
-//     title: "Hello Hits",
-//     table: helloWithCounter.table,
-//     sortBy: "-hits",
-// });
