@@ -5,7 +5,7 @@ exports.handler = async (event, context, callback) => {
     const body = JSON.parse(event.body);
 
     const s3BucketName = process.env.BUCKET_NAME;
-    const key = body.filename;
+    const key = `public/${body.filename}`;
 
     const params = {
         Bucket: s3BucketName,

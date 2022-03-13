@@ -18,7 +18,7 @@ exports.handler = (event, context, callback) => {
             const audioStream = data.AudioStream;
             const s3BucketName = process.env.BUCKET_NAME;
 
-            const key = `public/${body.prefix}_${body.text}`;
+            const key = `public/${body.user}/${body.prefix}_${body.text}`;
 
             const params = {
                 Bucket: s3BucketName,
