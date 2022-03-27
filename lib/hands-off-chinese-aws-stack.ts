@@ -10,22 +10,28 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        // Setup REST API
+        const api = new apigw.RestApi(this, "hands-off-chinese-api");
+        api.root.addMethod("ANY");
+        const entriesApi = api.root.addResource("entries");
+        const allEntriesApi = api.root.addResource("allentries");
+        const userDataApi = api.root.addResource("userdata");
+        // entriesApi.addMethod('GET');
+
+        // Write entry to Dynamo
         const metaDynamo = new dynamodb.Table(this, "Meta", {
             partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
             sortKey: { name: "user", type: dynamodb.AttributeType.STRING },
         });
-
-        // Write to Dynamo
-        const writeDynamoLambda = new lambda.Function(this, "WriteDynamo", {
+        const writeDynamoLambda = new lambda.Function(this, "WriteEntryMeta", {
             runtime: lambda.Runtime.NODEJS_14_X,
-            handler: "writetodynamo.handler",
+            handler: "writeentrytodynamo.handler",
             code: lambda.Code.fromAsset("lambda"),
             environment: {
                 TABLE_NAME: metaDynamo.tableName,
             },
         });
         metaDynamo.grantReadWriteData(writeDynamoLambda);
-
         // Scan meta data for all entries in Dynamo
         const scanMetaLambda = new lambda.Function(this, "ScanDynamo", {
             runtime: lambda.Runtime.NODEJS_14_X,
@@ -36,6 +42,36 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         metaDynamo.grantReadData(scanMetaLambda);
+        entriesApi.addMethod(
+            "POST",
+            new apigw.LambdaIntegration(writeDynamoLambda)
+        );
+        allEntriesApi.addMethod(
+            "GET",
+            new apigw.LambdaIntegration(scanMetaLambda)
+        );
+
+        // Write user data to Dynamo
+        const userDataDynamo = new dynamodb.Table(this, "User data", {
+            partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+            sortKey: { name: "user", type: dynamodb.AttributeType.STRING },
+        });
+        const writeUserDataLambda = new lambda.Function(this, "WriteUserData", {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: "writeuserdatatodynamo",
+            code: lambda.Code.fromAsset("lambda"),
+            environment: {
+                TABLE_NAME: userDataDynamo.tableName,
+            },
+        });
+        userDataDynamo.grantReadWriteData(writeUserDataLambda);
+        userDataApi.addMethod(
+            "POST",
+            new apigw.LambdaIntegration(writeUserDataLambda)
+        );
+        // FIXME: Test deploying and testing it out
+        // FIXME: Test if usable from app
+        // FIXME: Test setting up a getter as well
 
         // Polly
         const pollyStatement = new iam.PolicyStatement({
@@ -65,23 +101,6 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             },
         });
         pollyS3.grantReadWrite(signedUrlLambda);
-
-        // Setup REST API
-        const api = new apigw.RestApi(this, "hands-off-chinese-api");
-        api.root.addMethod("ANY");
-
-        const entriesApi = api.root.addResource("entries");
-        // entriesApi.addMethod('GET');
-        entriesApi.addMethod(
-            "POST",
-            new apigw.LambdaIntegration(writeDynamoLambda)
-        );
-
-        const allEntriesApi = api.root.addResource("allentries");
-        allEntriesApi.addMethod(
-            "GET",
-            new apigw.LambdaIntegration(scanMetaLambda)
-        );
 
         const pollyApi = api.root.addResource("polly");
         pollyApi.addMethod("POST", new apigw.LambdaIntegration(pollyLambda));
