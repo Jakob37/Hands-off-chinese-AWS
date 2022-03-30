@@ -52,13 +52,13 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
         );
 
         // Write user data to Dynamo
-        const userDataDynamo = new dynamodb.Table(this, "User data", {
+        const userDataDynamo = new dynamodb.Table(this, "UserData", {
             partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
             sortKey: { name: "user", type: dynamodb.AttributeType.STRING },
         });
         const writeUserDataLambda = new lambda.Function(this, "WriteUserData", {
             runtime: lambda.Runtime.NODEJS_14_X,
-            handler: "writeuserdatatodynamo",
+            handler: "writeuserdatatodynamo.handler",
             code: lambda.Code.fromAsset("lambda"),
             environment: {
                 TABLE_NAME: userDataDynamo.tableName,
@@ -69,9 +69,21 @@ export class HandsOffChineseAwsStack extends cdk.Stack {
             "POST",
             new apigw.LambdaIntegration(writeUserDataLambda)
         );
-        // FIXME: Test deploying and testing it out
-        // FIXME: Test if usable from app
-        // FIXME: Test setting up a getter as well
+
+        // Get user data from Dynamo
+        const getUserDataLambda = new lambda.Function(this, "GetUserData", {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: "readuserdatafromdynamo.handler",
+            code: lambda.Code.fromAsset("lambda"),
+            environment: {
+                TABLE_NAME: userDataDynamo.tableName,
+            },
+        });
+        userDataDynamo.grantReadWriteData(getUserDataLambda);
+        userDataApi.addMethod(
+            "GET",
+            new apigw.LambdaIntegration(getUserDataLambda)
+        );
 
         // Polly
         const pollyStatement = new iam.PolicyStatement({
