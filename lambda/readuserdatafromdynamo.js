@@ -10,7 +10,10 @@ const AWS = require("aws-sdk");
 // 3. Test interacting through the interface
 // 4. Test interacting with the interface through curl
 // 5. Test interacting from the app
+
 // Consider writing a small blog post on test lambda functions!
+// 1. Setup the Netlify infrastructure on the work laptop Leisure folder
+// 2. Document this setup using notion
 
 exports.handler = async function (event) {
     var body = JSON.parse(event.body);
