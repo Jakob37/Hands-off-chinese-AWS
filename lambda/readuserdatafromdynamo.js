@@ -16,7 +16,12 @@ const AWS = require("aws-sdk");
 // 2. Document this setup using notion
 
 exports.handler = async function (event) {
-    var body = JSON.parse(event.body);
+    const eventQueryParameters = event.eventQueryParameters;
+    const user = eventQueryParameters.user;
+    const id = eventQueryParameters.id;
+
+    // var body = JSON.parse(event.body);
+    // JSON.stringify(event.queryStringParameters)
 
     const dynamo = new AWS.DynamoDB();
 
@@ -26,7 +31,8 @@ exports.handler = async function (event) {
             .getItem({
                 TableName: process.env.TABLE_NAME,
                 Key: {
-                    id: { S: body.id },
+                    id: { S: id },
+                    user: { S: user },
                 },
             })
             .promise();
@@ -41,3 +47,50 @@ exports.handler = async function (event) {
     //     body: `Successfully retrieved an item with content: ${JSON.stringify()}`
     // }
 };
+
+// AHA! The key is to use the query parameters.
+
+// Running through manual use
+// {"body": "{\"id\":\"myid0.0781047789532614\", \"user\":\"myuser\"}"}
+
+// Running through axios
+// axios
+//     .get(
+//         "https://<URL>.execute-api.eu-west-1.amazonaws.com/prod/userdata",
+//         { id: "myid0.0781047789532614", user: "myuser" }
+//     )
+//     .then(function (response) {
+//         console.log(response);
+//     })
+//     .catch(function (err) {
+//         console.log(err.response.data);
+//     });
+
+// Work in progress, to get the GET request through
+// axios.get("https://<URL>.execute-api.eu-west-1.amazonaws.com/prod/userdata", {"data": {"id": "myid0.0781047789532614", "user":"myuser"}}).then(function(response) { console.log(response) }).catch(function(err) { console.log(err.response.data) })
+
+// Getting through
+// axios
+//     .get("https://httpbin.org/get", {
+//         params: { id: "myid0.0781047789532614", user: "myuser" },
+//     })
+//     .then(function (response) {
+//         console.log(response);
+//     })
+//     .catch(function (err) {
+//         console.log(err.response.data);
+//     });
+
+// NEXT STEP:
+
+// axios
+//     .get(
+//         "https://<URL>.execute-api.eu-west-1.amazonaws.com/prod/userdata",
+//         { params: { id: "myid0.0781047789532614", user: "myuser" } }
+//     )
+//     .then(function (response) {
+//         console.log(response);
+//     })
+//     .catch(function (err) {
+//         console.log(err);
+//     });
