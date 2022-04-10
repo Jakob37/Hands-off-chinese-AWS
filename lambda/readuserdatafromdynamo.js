@@ -16,13 +16,7 @@ const AWS = require("aws-sdk");
 // 2. Document this setup using notion
 
 exports.handler = async function (event) {
-    const eventQueryParameters = event.eventQueryParameters;
-    const user = eventQueryParameters.user;
-    const id = eventQueryParameters.id;
-
-    // var body = JSON.parse(event.body);
-    // JSON.stringify(event.queryStringParameters)
-
+    const { user, id } = event.queryStringParameters;
     const dynamo = new AWS.DynamoDB();
 
     let result;
@@ -83,14 +77,19 @@ exports.handler = async function (event) {
 
 // NEXT STEP:
 
+// Running API Gateway seems OK: id="myid0.0781047789532614"&user=myuser
+
 // axios
 //     .get(
 //         "https://<URL>.execute-api.eu-west-1.amazonaws.com/prod/userdata",
 //         { params: { id: "myid0.0781047789532614", user: "myuser" } }
 //     )
 //     .then(function (response) {
+//         data = response.data
 //         console.log(response);
 //     })
 //     .catch(function (err) {
 //         console.log(err);
 //     });
+
+// Then "data" contained the target information!
